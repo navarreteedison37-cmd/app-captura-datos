@@ -1,0 +1,54 @@
+name: Compilar APK
+
+# Se ejecuta automaticamente cada vez que subes cambios a la rama "main",
+# y tambien se puede lanzar manualmente desde la pestaña "Actions" de GitHub.
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el codigo del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Java (requerido por Android)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Descargar dependencias del proyecto
+        run: flutter pub get
+
+      - name: Generar carpetas nativas de Android (si faltan)
+        run: flutter create . --platforms=android
+
+      - name: Desactivar minificacion R8 (evita error de compilacion)
+        run: |
+          KTS="android/app/build.gradle.kts"
+          GRADLE="android/app/build.gradle"
+          if [ -f "$KTS" ]; then
+            sed -i 's/isMinifyEnabled = true/isMinifyEnabled = false/g' "$KTS"
+            sed -i 's/isShrinkResources = true/isShrinkResources = false/g' "$KTS"
+          fi
+          if [ -f "$GRADLE" ]; then
+            sed -i 's/minifyEnabled true/minifyEnabled false/g' "$GRADLE"
+            sed -i 's/shrinkResources true/shrinkResources false/g' "$GRADLE"
+          fi
+
+      - name: Compilar el APK
+        run: flutter build apk --release
+
+      - name: Publicar el APK como descarga
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
