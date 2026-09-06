@@ -1,0 +1,43 @@
+name: app_captura_datos
+description: "App para capturar fotos, extraer datos por OCR y generar documentos Word (Inspeccion Laboral / Control de Ingresos)."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # Camara y seleccion de imagenes (foto individual o multiples para carga masiva)
+  image_picker: ^1.1.2
+
+  # OCR gratuito y offline (Google ML Kit)
+  google_mlkit_text_recognition: ^0.13.1
+
+  # Guardar la eleccion "inspeccion laboral" / "control de ingresos" una sola vez
+  shared_preferences: ^2.2.3
+
+  # Ruta de almacenamiento del dispositivo para guardar los .docx generados
+  path_provider: ^2.1.4
+
+  # Un .docx es un .zip con archivos XML adentro. Usamos 'archive' para
+  # abrirlo, reemplazar las etiquetas {{...}} por los datos reales, y
+  # volver a comprimirlo. Es un metodo simple y no requiere configurar
+  # nada especial en Word (a diferencia de otros paquetes de plantillas).
+  archive: ^3.6.1
+
+  # Compartir el archivo Word generado (WhatsApp, correo, etc.)
+  share_plus: ^10.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/templates/
